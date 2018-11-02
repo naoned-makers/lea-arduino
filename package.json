@@ -7,7 +7,7 @@
   "dependencies": {
     "mqtt": "^2.18.8",
     "os": "^0.1.1",
-    "serialport": "^6.2.2",
+    "serialport": "^7.0.2",
     "twitter": "^1.3.0",
     "winston": "^3.0.0"
   },
@@ -27,10 +27,12 @@
   "scripts": {
     "test": "webpack --display-error-details && babel-node spec/jasmine-runner",
     "prod": "forever stopall && webpack --mode=production && forever start ./dist/app.js",
-    "dev": "pm2 start ./dist/app.js",
+    "dev": "forever start ./dist/app.js",
     "express": "forever stopall && forever start ./dist/app.js",
     "build": "webpack --display-error-details",
     "stats": "webpack --env production --profile --json > stats.json",
-    "forever": "forever"
+    "forever": "forever",
+    "dev2": "webpack --display-error-details && node ./dist/test.js",
+    "lea-arduino": "webpack --mode=production && node ./dist/app.js"
   }
 }
