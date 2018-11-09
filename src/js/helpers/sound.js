@@ -37,7 +37,7 @@ export const chooseSound = (tweet) => {
 }
 
 export const playSound = (file) => {
-  console.log('je joue le son ', file);
+  logger.log('info', 'je joue le son ' + file);
   var exec = require('child_process').exec;
   let soundFile = './assets/sounds/' + file + '.mp3';
   exec("omxplayer --adev alsa " + soundFile); 
