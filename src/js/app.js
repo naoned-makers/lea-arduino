@@ -28,8 +28,12 @@ clientMqtt.on('connect', function () {
 //A new command as arrived
 clientMqtt.on('message', function (topic, strPayload) {
   logger.log('debug', "New message");
-  let payload = JSON.parse(strPayload.toString());
-  checkPort(payload);
+  try {
+    let payload = JSON.parse(strPayload.toString());
+    checkPort(payload);
+  } catch (error) {
+    logger.log('error', "Format JSON incorrect" + error.message); 
+  }
 });
 
 
@@ -93,7 +97,7 @@ function checkPort(payload) {
     getCurrentPort(payload);
   } else {
     // Ecriture sur le port série de l'Arduino
-    logger.log('info', "Ecriture sur le port série de l'Arduino");
+    logger.log('info', "Ecriture sur le port série de l'Arduino " + payload.LCDText);
     //checkPortAvailable();
     writeDataOnArduinoSerial(payload);
   }
