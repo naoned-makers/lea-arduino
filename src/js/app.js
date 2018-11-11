@@ -12,6 +12,7 @@ let clientMqtt;
 let optionsMqtt = {QoS: 2, retain: true};
 
 const BRAIN_TO_ARDUINO_CHANNEL = 'lea/brain/arduino';
+const ARDUINO_BRAIN_TO_CHANNEL = 'lea/arduino/brain';
 
 //on se connecte au broker (localhost) et on suscribe aux command message
 clientMqtt = mqtt.connect('ws://localhost:3001', {
@@ -43,7 +44,7 @@ function getCurrentPort(payload) {
       ports.forEach(function(port) {
         let val = port['manufacturer']
         if (typeof val !== 'undefined' &&  val.toLowerCase().includes("arduino")) {
-          logger.log('debug', port.comName);
+          logger.log('debug', "Nom du port Arduino " + port.comName);
           arduinoPortName = port.comName;
           arduinoPort = new SerialPort(arduinoPortName);
           arduinoPort.on('open', function() {
@@ -55,8 +56,6 @@ function getCurrentPort(payload) {
             logger.log('debug', err);
             logger.log('error', 'Error: ', err);
           });
-        } else {
-          logger.log('error', 'Impossible de trouver un arduino connecté....')
         }
       });
     });
@@ -68,18 +67,20 @@ function getCurrentPort(payload) {
  * @param msg
  */
 function writeDataOnArduinoSerial(tweet) {
+  if (tweet.fresh) {
     logger.log('info', "Affichage du message " + tweet.LCDText);
-    arduinoPort.write("{ 'motion': '" + tweet.motion + "', tweet:'" + tweet.LCDText + "', 'rank':'" + tweet.rank + "'}", function(err) {
-      if (err) {
-        return logger.log('error', 'Error on write: ', err.message);
-      }
+  }
+  arduinoPort.write("{ 'motion': '" + tweet.motion + "', tweet:'" + tweet.LCDText + "', 'rank':'" + tweet.rank + "'}", function(err) {
+    if (err) {
+      return logger.log('error', 'Error on write: ', err.message);
+    }
 
-      if (tweet.fresh) {
-        playSound(tweet.sound);
-      }
-      logger.log('info', "Le nouveau tweet vient de finir de s'afficher sur l'arduino !");
-      clientMqtt.publish('lea/arduino/brain', JSON.stringify({action: Configuration.processConst.ACTION.END_SHOW_TWEET_ON_ARDUINO, tweet: tweet}), optionsMqtt);
-    });
+    if (tweet.fresh) {
+      playSound(tweet.sound);
+      logger.log('info', "Envoi du message sur l'arduino");
+    }
+    clientMqtt.publish(ARDUINO_BRAIN_TO_CHANNEL, JSON.stringify({action: Configuration.processConst.ACTION.END_SHOW_TWEET_ON_ARDUINO, tweet: tweet}), optionsMqtt);
+  });
 }
 
 function checkPort(payload) {
