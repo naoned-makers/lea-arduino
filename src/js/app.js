@@ -15,7 +15,7 @@ const BRAIN_TO_ARDUINO_CHANNEL = 'lea/brain/arduino';
 const ARDUINO_BRAIN_TO_CHANNEL = 'lea/arduino/brain';
 
 //on se connecte au broker (localhost) et on suscribe aux command message
-clientMqtt = mqtt.connect('ws://localhost:3001', {
+clientMqtt = mqtt.connect('ws://lea.local:3001', {
     clientId: 'lea_arduino_' + os.hostname()
 });
 
